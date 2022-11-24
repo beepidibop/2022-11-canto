@@ -254,6 +254,11 @@ contract TurnstileTest is Test {
         vm.assume(_withdrawAmount > 0 && _withdrawAmount < 1000 ether);
         vm.deal(cosmosModule, 1000 ether);
 
+        // Adding another token just so tests always transfer tokenId > 0
+        // Transfering tokenId > 0 always uses more gas than tokenId == 0
+        // So it's more representative to record gas used for transferring non-zero tokenId
+        vm.prank(address(1));
+        turnstile.register(address(1));
         vm.prank(receiveContract);
         uint256 tokenId = turnstile.register(_recipient);
         assertEq(turnstile.getTokenId(receiveContract), tokenId);
