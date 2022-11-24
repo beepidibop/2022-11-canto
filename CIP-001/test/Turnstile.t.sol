@@ -17,6 +17,8 @@ contract TurnstileTest is Test {
     address public receiveContract = address(new ReceiveSmartContract());
     bytes public code = receiveContract.code;
 
+    uint256 public constant startingId = 1;
+
     event Register(address smartContract, address recipient, uint256 tokenId);
     event Assign(address smartContract, uint256 tokenId);
     event Withdraw(uint256 tokenId, address recipient, uint256 feeAmount);
@@ -28,7 +30,7 @@ contract TurnstileTest is Test {
     }
 
     function _testGetters() public {
-        assertEq(turnstile.currentCounterId(), 0);
+        assertEq(turnstile.currentCounterId(), startingId);
         address recipient = address(uint160(1));
 
         for (uint256 i = 1; i < 50; i++) {
@@ -42,7 +44,7 @@ contract TurnstileTest is Test {
             vm.prank(smartContract2);
             uint256 assignedTokenId = turnstile.assign(tokenId);
 
-            assertEq(turnstile.currentCounterId(), i);
+            assertEq(turnstile.currentCounterId(), i + startingId);
             assertEq(turnstile.currentCounterId(), tokenId + 1);
             assertEq(tokenId, assignedTokenId);
             assertEq(turnstile.balanceOf(recipient), i);
@@ -82,7 +84,7 @@ contract TurnstileTest is Test {
 
         uint256 currentCounterId = turnstile.currentCounterId();
 
-        assertEq(currentCounterId, 0);
+        assertEq(currentCounterId, startingId);
         assertEq(turnstile.balanceOf(_recipient), 0);
 
         vm.expectRevert("ERC721: invalid token ID");
@@ -135,7 +137,7 @@ contract TurnstileTest is Test {
         uint256 assignedTokenId = turnstile.assign(tokenId);
 
         assertEq(tokenId, assignedTokenId);
-        assertEq(turnstile.currentCounterId(), 1);
+        assertEq(turnstile.currentCounterId(), startingId + 1);
         assertEq(turnstile.balanceOf(_recipient), 1);
         assertEq(turnstile.ownerOf(tokenId), _recipient);
         assertEq(turnstile.getTokenId(_smartContract), tokenId);
