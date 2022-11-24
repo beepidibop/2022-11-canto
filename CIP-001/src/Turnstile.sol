@@ -120,9 +120,12 @@ contract Turnstile is Ownable, ERC721Enumerable {
         uint256 earnedFees = balances[_tokenId];
 
         if (earnedFees == 0 || _amount == 0) revert NothingToWithdraw();
-        if (_amount > earnedFees) _amount = earnedFees;
-
-        balances[_tokenId] = earnedFees - _amount;
+        if (_amount > earnedFees) {
+            _amount = earnedFees;
+            balances[_tokenId] = 0;
+        } else {
+            balances[_tokenId] = earnedFees - _amount;
+        }
 
         emit Withdraw(_tokenId, _recipient, _amount);
 
